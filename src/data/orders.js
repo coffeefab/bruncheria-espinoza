@@ -54,24 +54,24 @@ export async function markPickedUp(historyOrder) {
   await remove(ref(db, `${HISTORY_PATH}/${historyOrder.historyKey}`))
 }
 
-export function subscribeOrders(callback) {
+export function subscribeOrders(callback, onError) {
   return onValue(ref(db, ORDERS_PATH), snapshot => {
     const val = snapshot.val() || {}
     const orders = Object.values(val).sort(
       (a, b) => new Date(a.createdAt || a.timestamp) - new Date(b.createdAt || b.timestamp)
     )
     callback(orders)
-  })
+  }, onError)
 }
 
-export function subscribeHistory(callback) {
+export function subscribeHistory(callback, onError) {
   return onValue(ref(db, HISTORY_PATH), snapshot => {
     const val = snapshot.val() || {}
     const history = Object.values(val).sort(
       (a, b) => new Date(b.completedAt) - new Date(a.completedAt)
     )
     callback(history)
-  })
+  }, onError)
 }
 
 // ── Ringers ───────────────────────────────────────────────────────
@@ -84,9 +84,9 @@ export async function releaseRinger(number) {
   await remove(ref(db, `${RINGERS_PATH}/${number}`))
 }
 
-export function subscribeRingers(callback) {
+export function subscribeRingers(callback, onError) {
   return onValue(ref(db, RINGERS_PATH), snapshot => {
     const val = snapshot.val() || {}
     callback(new Set(Object.keys(val).map(Number)))
-  })
+  }, onError)
 }

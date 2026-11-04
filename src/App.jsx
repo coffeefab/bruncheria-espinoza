@@ -12,8 +12,8 @@ import { pushOrder, claimRinger } from './data/orders'
 export const STORAGE_KEY = 'be_orders_v2'
 
 export default function App() {
-  const isKitchen = window.location.pathname === '/kitchen'
-  const isDisplay = window.location.pathname === '/display'
+  const isKitchen = window.location.pathname.endsWith('/kitchen') || window.location.hash === '#kitchen'
+  const isDisplay = window.location.pathname.endsWith('/display') || window.location.hash === '#display'
 
   // Menu data
   const [menuItems, setMenuItems] = useState([])

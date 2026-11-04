@@ -815,6 +815,55 @@ ul { list-style: none; }
   overflow: hidden;
 }
 
+.kitchen-login {
+  width: min(100% - 32px, 420px);
+  margin: auto;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #1A1A1A;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--r-lg);
+}
+.kitchen-login-title {
+  color: var(--yellow);
+  font: 900 32px var(--font-display);
+  text-align: center;
+}
+.kitchen-login-subtitle {
+  margin-bottom: 12px;
+  color: rgba(255,255,255,0.65);
+  text-align: center;
+}
+.kitchen-login-label { font-weight: 600; }
+.kitchen-login-input {
+  width: 100%;
+  padding: 12px 14px;
+  color: var(--white);
+  background: #0A0A0A;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--r-sm);
+  font: inherit;
+}
+.kitchen-login-error { color: #FF8A8A; font-size: 14px; }
+.kitchen-login-button {
+  margin-top: 8px;
+  padding: 13px 18px;
+  color: var(--black);
+  background: var(--yellow);
+  border-radius: var(--r-full);
+  font: 800 18px var(--font-display);
+}
+.kitchen-login-button:disabled { opacity: 0.6; }
+.kitchen-signout {
+  padding: 8px 14px;
+  color: var(--white);
+  background: rgba(255,255,255,0.12);
+  border-radius: var(--r-full);
+  font-weight: 700;
+}
+
 .kitchen-header {
   display: flex;
   align-items: center;
