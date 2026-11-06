@@ -17,28 +17,58 @@ function Clock() {
 }
 
 export default function DisplayScreen() {
-  const [active, setActive]         = useState([])
+  const [orders, setOrders]         = useState([])
   const [rawHistory, setRawHistory] = useState([])
   const [dismissing, setDismissing] = useState(new Set())
-  const [tick, setTick]             = useState(0)
+  const [pickupError, setPickupError] = useState('')
 
   useEffect(() => {
     const unsubs = [
-      subscribeOrders(orders => setActive(orders.filter(o => o.status === 'active'))),
+      subscribeOrders(setOrders),
       subscribeHistory(setRawHistory),
     ]
-    // tick every 30s so expired "ready" orders auto-drop
-    const id = setInterval(() => setTick(t => t + 1), 30_000)
-    return () => { unsubs.forEach(u => u()); clearInterval(id) }
+    return () => unsubs.forEach(u => u())
   }, [])
 
-  const ready = rawHistory.filter(
-    o => o.completedAt && Date.now() - new Date(o.completedAt).getTime() < READY_TTL_MS
-  )
+  const preparing = orders.filter(order => order.status === 'preparing' || order.status === 'active')
+  const readyOrders = [
+    ...orders.filter(order => order.status === 'ready'),
+    ...rawHistory.filter(order => order.status === 'done' || order.status === 'ready'),
+  ]
+  const ready = readyOrders.filter(order => {
+    const readyAt = order.readyAt || order.completedAt
+    return readyAt && Date.now() - new Date(readyAt).getTime() < READY_TTL_MS
+  })
+
+  function displayKey(order) {
+    return order.historyKey || order.firebaseKey || order.id
+  }
+
+  function orderNumber(order) {
+    return order.orderNumber ?? order.number
+  }
+
+  function buzzerNumber(order) {
+    return order.buzzerNumber ?? (!order.orderNumber ? order.number : null)
+  }
 
   function handlePickup(order) {
-    setDismissing(prev => new Set(prev).add(order.historyKey))
-    setTimeout(() => markPickedUp(order), 400)
+    const key = displayKey(order)
+    setDismissing(prev => new Set(prev).add(key))
+    setPickupError('')
+    setTimeout(async () => {
+      try {
+        await markPickedUp(order)
+      } catch (error) {
+        console.error('Could not mark order as picked up:', error)
+        setDismissing(prev => {
+          const next = new Set(prev)
+          next.delete(key)
+          return next
+        })
+        setPickupError('No se pudo actualizar la orden. Pide ayuda al personal.')
+      }
+    }, 400)
   }
 
   return (
@@ -68,7 +98,7 @@ export default function DisplayScreen() {
             </div>
           </div>
 
-          {active.length === 0 ? (
+          {preparing.length === 0 ? (
             <div className="display-empty">
               <div className="display-empty-icon">✓</div>
               <div>All caught up</div>
@@ -76,9 +106,12 @@ export default function DisplayScreen() {
             </div>
           ) : (
             <div className="display-numbers">
-              {active.map(order => (
-                <div key={order.firebaseKey || order.id} className="display-number display-number--preparing">
-                  <div className="display-number-val">{order.number}</div>
+              {preparing.map(order => (
+                <div key={displayKey(order)} className="display-number display-number--preparing">
+                  <div className="display-number-val">{orderNumber(order)}</div>
+                  {buzzerNumber(order) != null && (
+                    <div className="display-number-buzzer">Localizador #{buzzerNumber(order)}</div>
+                  )}
                   <div className="display-number-items">
                     {order.cart.map(ci => {
                       const name = ci.item.name_en || ci.item.name_es || ''
@@ -114,10 +147,13 @@ export default function DisplayScreen() {
             <div className="display-numbers">
               {ready.map(order => (
                 <div
-                  key={order.historyKey}
-                  className={`display-number display-number--ready${dismissing.has(order.historyKey) ? ' display-number--dismissing' : ''}`}
+                  key={displayKey(order)}
+                  className={`display-number display-number--ready${dismissing.has(displayKey(order)) ? ' display-number--dismissing' : ''}`}
                 >
-                  <div className="display-number-val">{order.number}</div>
+                  <div className="display-number-val">{orderNumber(order)}</div>
+                  {buzzerNumber(order) != null && (
+                    <div className="display-number-buzzer">Localizador #{buzzerNumber(order)}</div>
+                  )}
                   <div className="display-number-ready-label">Pick up now · Recoge ahora</div>
                   <button
                     className="display-pickup-btn"
@@ -135,7 +171,7 @@ export default function DisplayScreen() {
 
       {/* Footer */}
       <div className="display-footer">
-        💳 Pay at the window &nbsp;·&nbsp; Pague en la ventana
+        {pickupError || '💳 Pay at the window · Pague en la ventana'}
       </div>
     </div>
   )

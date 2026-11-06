@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import WelcomeScreen from './components/WelcomeScreen'
 import MenuScreen from './components/MenuScreen'
 import ReviewScreen from './components/ReviewScreen'
-import OrderNumberScreen from './components/OrderNumberScreen'
 import ConfirmationScreen from './components/ConfirmationScreen'
 import KitchenScreen from './components/KitchenScreen'
 import DisplayScreen from './components/DisplayScreen'
 import { fetchMenu, buildFallbackMenu } from './data/menu'
-import { pushOrder, claimRinger } from './data/orders'
+import { pushOrder } from './data/orders'
 
 export const STORAGE_KEY = 'be_orders_v2'
 
 export default function App() {
-  const isKitchen = window.location.pathname.endsWith('/kitchen') || window.location.hash === '#kitchen'
-  const isDisplay = window.location.pathname.endsWith('/display') || window.location.hash === '#display'
+  const [routeHash, setRouteHash] = useState(window.location.hash)
+  const isKitchen = window.location.pathname.endsWith('/kitchen') || routeHash === '#kitchen'
+  const isDisplay = window.location.pathname.endsWith('/display') || routeHash === '#display'
 
   // Menu data
   const [menuItems, setMenuItems] = useState([])
@@ -25,6 +25,16 @@ export default function App() {
   const [cart, setCart] = useState([])
   const [lastOrder, setLastOrder] = useState(null)
   const [toast, setToast] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const submittingRef = useRef(false)
+  const submissionAttempt = useRef(null)
+
+  useEffect(() => {
+    const handleHashChange = () => setRouteHash(window.location.hash)
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [])
 
   // Fetch menu on mount
   useEffect(() => {
@@ -49,6 +59,8 @@ export default function App() {
     setScreen('welcome')
     setCart([])
     setLastOrder(null)
+    setSubmitError('')
+    submissionAttempt.current = null
   }
 
   function handleAddItem(item, modifiers) {
@@ -56,21 +68,30 @@ export default function App() {
     showToast(`${item.name_en} added`)
   }
 
-  function handleOrderNumberSelect(number) {
-    const order = {
-      id: Date.now(),
-      number,
-      cart: [...cart],
-      status: 'active',
-      timestamp: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
+  async function handleSubmitOrder() {
+    if (submittingRef.current || !cart.length) return
+    submittingRef.current = true
+    setSubmitting(true)
+    setSubmitError('')
+    submissionAttempt.current ||= {}
+    try {
+      const order = await pushOrder({ cart: [...cart] }, submissionAttempt.current)
+      setLastOrder(order)
+      setScreen('confirmation')
+    } catch (error) {
+      console.error('Order submission failed:', error)
+      setSubmitError('We couldn’t send your order. Please try again.')
+    } finally {
+      submittingRef.current = false
+      setSubmitting(false)
     }
-    // Navigate immediately — push to Firebase in background
-    setLastOrder(order)
-    setScreen('confirmation')
-    claimRinger(number).catch(err => console.error('Ringer claim failed:', err))
-    pushOrder(order).catch(err => console.error('Firebase push failed:', err))
   }
+
+  useEffect(() => {
+    if (screen !== 'confirmation') return
+    const timer = setTimeout(resetToWelcome, 60_000)
+    return () => clearTimeout(timer)
+  }, [screen, lastOrder])
 
   if (isKitchen) return <KitchenScreen />
   if (isDisplay) return <DisplayScreen />
@@ -98,16 +119,11 @@ export default function App() {
       {screen === 'review' && (
         <ReviewScreen
           cart={cart}
-          onConfirm={() => setScreen('order-number')}
+          submitting={submitting}
+          submitError={submitError}
+          orderLocked={!!submissionAttempt.current}
+          onConfirm={handleSubmitOrder}
           onBack={() => setScreen('menu')}
-          onReset={resetToWelcome}
-        />
-      )}
-
-      {screen === 'order-number' && (
-        <OrderNumberScreen
-          onSelect={handleOrderNumberSelect}
-          onBack={() => setScreen('review')}
         />
       )}
 

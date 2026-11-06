@@ -16,6 +16,8 @@ export default function WelcomeScreen({ onStart, menuLoading }) {
         <img src="/logo.png" alt="Bruncheria Espinoza" className="welcome-logo-img" />
       </div>
 
+      <div className="welcome-instruction">Order here, pay at the window.</div>
+
       <button
         className="welcome-cta"
         onClick={onStart}
@@ -35,7 +37,7 @@ export default function WelcomeScreen({ onStart, menuLoading }) {
 
       {/* Testing only — remove before production */}
       <a
-        href="/kitchen"
+        href="#kitchen"
         style={{
           position: 'absolute',
           bottom: 16,

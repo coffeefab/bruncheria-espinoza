@@ -1,34 +1,28 @@
 import { Logo } from './WelcomeScreen'
+import { calculateOrderTotals } from '../data/pricing'
 
 function itemTotal(item, mods) {
-  return item.price + mods.reduce((s, m) => s + (m.price || 0), 0)
+  return item.price + mods.reduce((sum, modifier) => sum + (modifier.price || 0), 0)
 }
 
-export default function ReviewScreen({ cart, onConfirm, onBack, onReset }) {
-  const total = cart.reduce((s, ci) => s + itemTotal(ci.item, ci.modifiers), 0)
+export default function ReviewScreen({
+  cart, submitting, submitError, orderLocked, onConfirm, onBack,
+}) {
+  const { subtotal, tax, total } = calculateOrderTotals(cart)
 
   return (
     <div className="review-screen">
       <div className="screen-header">
-        <button className="btn-back" onClick={onBack}>← Back</button>
+        <button className="btn-back" onClick={onBack} disabled={orderLocked || submitting}>← Back</button>
         <Logo />
-        <button
-          onClick={onReset}
-          style={{
-            marginLeft: 'auto',
-            fontSize: 22,
-            fontWeight: 700,
-            color: 'var(--gray)',
-            padding: '14px 24px',
-            borderRadius: 'var(--r-full)',
-            transition: 'background var(--t)',
-          }}
-        >
-          Start Over
-        </button>
       </div>
 
       <div className="review-scroll">
+        <div className="review-heading">
+          <div className="review-heading-title">Everything look right?</div>
+          <div className="review-heading-copy">Review your items before sending your order to the window.</div>
+        </div>
+
         {/* Customer summary (English) */}
         <div className="review-section">
           <div className="review-section-label">🧾 Your Order</div>
@@ -56,21 +50,23 @@ export default function ReviewScreen({ cart, onConfirm, onBack, onReset }) {
           })}
         </div>
 
-        <div className="review-total-bar">
-          <span className="review-total-label">Total</span>
-          <span className="review-total-amount">${total.toFixed(2)}</span>
-        </div>
-        <div style={{ textAlign: 'center', fontSize: 15, color: 'var(--gray)', marginTop: 6 }}>
-          + tax at checkout
+        <div className="review-tax-breakdown">
+          <div><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
+          <div><span>Tax (7%)</span><span>${tax.toFixed(2)}</span></div>
+          <div className="review-total-bar">
+            <span className="review-total-label">Total</span>
+            <span className="review-total-amount">${total.toFixed(2)}</span>
+          </div>
         </div>
       </div>
 
       <div className="screen-footer">
-        <button className="btn-primary" onClick={onConfirm}>
-          Confirm Order · Confirmar
+        {submitError && <div className="order-submit-error" role="alert">{submitError}</div>}
+        <button className="btn-primary" onClick={onConfirm} disabled={submitting || !cart.length}>
+          {submitting ? 'Sending order…' : orderLocked ? 'Retry sending my order' : 'Send my order'}
         </button>
-        <button className="btn-add-more" onClick={onBack}>
-          + Add something else · Agregar más
+        <button className="btn-add-more" onClick={onBack} disabled={orderLocked || submitting}>
+          Edit order
         </button>
       </div>
     </div>

@@ -2,29 +2,22 @@ export default function ConfirmationScreen({ order, onDone }) {
   return (
     <div className="confirmation-screen">
       <div className="confirmation-inner">
-        {/* Animated egg */}
         <div className="confirmation-egg">🍳</div>
-
-        <p className="confirmation-label">We're working on your order!</p>
-        <p className="confirmation-label-es">¡Estamos preparando su orden!</p>
-
-        {/* Ringer number */}
-        <div className="confirmation-ringer-tag">{order.number}</div>
-
-        {/* Buzz line */}
+        <p className="confirmation-label">Got it! We've received your order.</p>
+        <p className="confirmation-label-es">¡Listo! Recibimos tu orden.</p>
+        <div className="confirmation-order-number">Order #{order.orderNumber}</div>
         <div className="confirmation-buzz">
-          Your ringer will buzz when it's ready
-          <span className="confirmation-buzz-es">Su localizador vibrará cuando esté lista</span>
+          Head to the window to confirm and pay.
+          <span>Show us your order number. We’ll confirm everything, take your payment, and give you a buzzer.</span>
+          <span className="confirmation-buzz-es">Muestra tu número en la ventana. Confirmaremos tu orden, recibiremos el pago y te daremos un localizador.</span>
         </div>
-
-        {/* Pay pill */}
-        <div className="confirmation-pay">
-          💳 Pay at the window · Pague en la ventana
-        </div>
+        <p className="confirmation-footer-copy">
+          Your order will be prepared once it’s confirmed at the window.
+        </p>
       </div>
 
       <button className="btn-primary confirmation-new-order" onClick={onDone}>
-        Start New Order · Nueva Orden
+        Start New Order
       </button>
     </div>
   )
