@@ -80,7 +80,11 @@ export default function App() {
       setScreen('confirmation')
     } catch (error) {
       console.error('Order submission failed:', error)
-      setSubmitError('We couldn’t send your order. Please try again.')
+      setSubmitError(error?.code === 'PERMISSION_DENIED'
+        || error?.code === 'database/permission-denied'
+        || error?.message?.includes('Permission denied')
+        ? 'The order database denied access. Please ask staff for help.'
+        : 'We couldn’t send your order. Please try again.')
     } finally {
       submittingRef.current = false
       setSubmitting(false)

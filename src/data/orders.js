@@ -9,6 +9,12 @@ const HISTORY_PATH = 'history'
 const RINGERS_PATH = 'ringers'
 const COUNTERS_PATH = 'orderCounters'
 
+function isPermissionDenied(error) {
+  return error?.code === 'PERMISSION_DENIED'
+    || error?.code === 'database/permission-denied'
+    || error?.message?.includes('Permission denied')
+}
+
 function localDayKey(date) {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -26,11 +32,16 @@ export async function pushOrder(order, attempt) {
   if (!attempt.orderNumber) {
     const now = new Date()
     const counterRef = ref(db, `${COUNTERS_PATH}/${localDayKey(now)}`)
-    const result = await runTransaction(counterRef, current => (
-      (Number(current) || 100) + 1
-    ), { applyLocally: false })
-    if (!result.committed) throw new Error('Could not allocate an order number.')
-    attempt.orderNumber = result.snapshot.val()
+    try {
+      const result = await runTransaction(counterRef, current => (
+        (Number(current) || 100) + 1
+      ), { applyLocally: false })
+      if (!result.committed) throw new Error('Could not allocate an order number.')
+      attempt.orderNumber = result.snapshot.val()
+    } catch (error) {
+      if (!isPermissionDenied(error)) throw error
+      attempt.orderNumber = attempt.firebaseKey
+    }
     attempt.createdAt = now.toISOString()
   }
 
