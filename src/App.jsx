@@ -80,11 +80,11 @@ export default function App() {
       setScreen('confirmation')
     } catch (error) {
       console.error('Order submission failed:', error)
-      setSubmitError(error?.code === 'PERMISSION_DENIED'
-        || error?.code === 'database/permission-denied'
-        || error?.message?.includes('Permission denied')
-        ? 'The order database denied access. Please ask staff for help.'
-        : 'We couldn’t send your order. Please try again.')
+      const code = typeof error?.code === 'string' ? error.code : 'unknown'
+      const detail = typeof error?.message === 'string'
+        ? error.message.replace(/https?:\/\/\S+/g, '[Firebase endpoint]').slice(0, 180)
+        : 'No error details returned.'
+      setSubmitError(`Order error [${code}]: ${detail}`)
     } finally {
       submittingRef.current = false
       setSubmitting(false)
