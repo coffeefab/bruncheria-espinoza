@@ -2,7 +2,7 @@
 export function Logo({ size = 60 }) {
   return (
     <img
-      src="/logo.png"
+      src={`${import.meta.env.BASE_URL}logo.png`}
       alt="Bruncheria Espinoza"
       style={{ height: size, width: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
     />
@@ -13,7 +13,7 @@ export default function WelcomeScreen({ onStart, menuLoading }) {
   return (
     <div className="welcome-screen">
       <div className="welcome-brand">
-        <img src="/logo.png" alt="Bruncheria Espinoza" className="welcome-logo-img" />
+        <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Bruncheria Espinoza" className="welcome-logo-img" />
       </div>
 
       <div className="welcome-instruction">Order here, pay at the window.</div>
