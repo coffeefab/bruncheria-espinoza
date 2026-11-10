@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { subscribeOrders, subscribeHistory, markPickedUp } from '../data/orders'
 import { formatOrderNumber } from '../data/orderNumber'
+import { Logo } from './WelcomeScreen'
 
 const READY_TTL_MS = 10 * 60 * 1000 // show ready orders for 10 min
 
@@ -73,7 +74,7 @@ export default function DisplayScreen() {
       {/* Header */}
       <div className="display-header">
         <div className="display-brand">
-          <span className="display-brand-emoji">🌮</span>
+          <Logo />
           Bruncheria Espinoza
         </div>
         <div className="display-header-right">

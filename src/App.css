@@ -606,11 +606,6 @@ ul { list-style: none; }
 
 /* ── CONFIRMATION ────────────────────────────────────────────── */
 /* ── CONFIRMATION ────────────────────────────────────────────── */
-@keyframes eggWobble {
-  0%, 100% { transform: rotate(-8deg); }
-  50%       { transform: rotate(8deg); }
-}
-
 .confirmation-screen {
   height: 100dvh;
   display: flex;
@@ -634,13 +629,6 @@ ul { list-style: none; }
   gap: 12px;
   flex: 1;
   justify-content: center;
-}
-
-.confirmation-egg {
-  font-size: 72px;
-  animation: eggWobble 1.4s ease-in-out infinite;
-  display: block;
-  margin-bottom: 4px;
 }
 
 .confirmation-label {
@@ -751,6 +739,9 @@ ul { list-style: none; }
 }
 
 .kitchen-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-family: var(--font-display);
   font-size: 28px;
   font-weight: 900;

@@ -1,10 +1,11 @@
 import { formatOrderNumber } from '../data/orderNumber'
+import { Logo } from './WelcomeScreen'
 
 export default function ConfirmationScreen({ order, onDone }) {
   return (
     <div className="confirmation-screen">
       <div className="confirmation-inner">
-        <div className="confirmation-egg">🍳</div>
+        <Logo size={96} />
         <p className="confirmation-label">Got it! We've received your order.</p>
         <p className="confirmation-label-es">¡Listo! Recibimos tu orden.</p>
         <div className="confirmation-order-number">Order #{formatOrderNumber(order)}</div>

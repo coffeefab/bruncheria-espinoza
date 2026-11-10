@@ -1,10 +1,10 @@
 // Logo used in screen headers
-export function Logo() {
+export function Logo({ size = 60 }) {
   return (
     <img
       src="/logo.png"
       alt="Bruncheria Espinoza"
-      style={{ height: 60, width: 60, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+      style={{ height: size, width: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
     />
   )
 }

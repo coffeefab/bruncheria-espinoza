@@ -5,6 +5,7 @@ import {
   updatePendingOrder,
 } from '../data/orders'
 import { formatOrderNumber } from '../data/orderNumber'
+import { Logo } from './WelcomeScreen'
 import ReviewOrderCard from './ReviewOrderCard'
 
 const UNDO_MS = 8000
@@ -161,7 +162,7 @@ export default function KitchenScreen() {
   return (
     <div className="kitchen-screen">
       <div className="kitchen-header">
-        <div className="kitchen-title">🌮 Bruncheria</div>
+        <div className="kitchen-title"><Logo /> Bruncheria</div>
         <div className="kitchen-status">
           <Clock />
           <span className="kitchen-badge">{awaiting.length} por confirmar · {preparing.length} en cocina</span>
