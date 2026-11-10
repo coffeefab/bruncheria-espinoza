@@ -1,6 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth'
-import { auth } from '../firebase'
 import {
   cancelOrder, confirmOrder, markOrderReady, markPickedUp, releaseOrderBuzzer,
   restoreFromHistory, subscribeHistory, subscribeOrders, subscribeRingers,
@@ -32,12 +30,6 @@ function buzzerNumber(order) {
 }
 
 export default function KitchenScreen() {
-  const [user, setUser] = useState(null)
-  const [authReady, setAuthReady] = useState(false)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [authBusy, setAuthBusy] = useState(false)
-  const [authError, setAuthError] = useState('')
   const [tab, setTab] = useState('review')
   const [orders, setOrders] = useState([])
   const [history, setHistory] = useState([])
@@ -49,26 +41,6 @@ export default function KitchenScreen() {
   const undoTimer = useRef(null)
 
   useEffect(() => {
-    return onAuthStateChanged(auth, currentUser => {
-      setUser(currentUser)
-      setAuthReady(true)
-      setAuthError('')
-    }, error => {
-      console.error('Firebase auth state failed:', error)
-      setAuthError('No se pudo comprobar la sesión. Intenta recargar la página.')
-      setAuthReady(true)
-    })
-  }, [])
-
-  useEffect(() => {
-    if (!user) {
-      setLoading(false)
-      setOrders([])
-      setHistory([])
-      setInUse(new Set())
-      return
-    }
-
     setLoading(true)
     setDataError('')
     const handleDataError = error => {
@@ -82,35 +54,7 @@ export default function KitchenScreen() {
       subscribeRingers(setInUse, handleDataError),
     ]
     return () => unsubs.forEach(unsubscribe => unsubscribe())
-  }, [user])
-
-  async function handleSignIn(event) {
-    event.preventDefault()
-    setAuthBusy(true)
-    setAuthError('')
-    try {
-      await signInWithEmailAndPassword(auth, email.trim(), password)
-      setPassword('')
-    } catch (error) {
-      console.error('Kitchen sign-in failed:', error)
-      setAuthError(error.code === 'auth/invalid-credential'
-        ? 'Correo o contraseña incorrectos.'
-        : error.code === 'auth/too-many-requests'
-          ? 'Demasiados intentos. Espera un momento e inténtalo de nuevo.'
-          : 'No se pudo iniciar sesión. Revisa tu conexión e inténtalo de nuevo.')
-    } finally {
-      setAuthBusy(false)
-    }
-  }
-
-  async function handleSignOut() {
-    try {
-      await signOut(auth)
-    } catch (error) {
-      console.error('Kitchen sign-out failed:', error)
-      setAuthError('No se pudo cerrar sesión. Inténtalo de nuevo.')
-    }
-  }
+  }, [])
 
   async function handleDone(order) {
     try {
@@ -178,59 +122,12 @@ export default function KitchenScreen() {
     }
   }
 
-  if (!authReady) {
-    return (
-      <div className="kitchen-screen">
-        <div className="kitchen-empty">
-          <div className="kitchen-empty-emoji">⏳</div>
-          <div>Verificando sesión…</div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return (
-      <div className="kitchen-screen">
-        <form className="kitchen-login" onSubmit={handleSignIn}>
-          <div className="kitchen-login-title">🌮 Bruncheria</div>
-          <div className="kitchen-login-subtitle">Inicia sesión para abrir la cocina</div>
-          <label className="kitchen-login-label" htmlFor="kitchen-email">Correo</label>
-          <input
-            id="kitchen-email"
-            className="kitchen-login-input"
-            type="email"
-            autoComplete="username"
-            value={email}
-            onChange={event => setEmail(event.target.value)}
-            required
-          />
-          <label className="kitchen-login-label" htmlFor="kitchen-password">Contraseña</label>
-          <input
-            id="kitchen-password"
-            className="kitchen-login-input"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={event => setPassword(event.target.value)}
-            required
-          />
-          {authError && <div className="kitchen-login-error" role="alert">{authError}</div>}
-          <button className="kitchen-login-button" type="submit" disabled={authBusy}>
-            {authBusy ? 'Iniciando sesión…' : 'Iniciar sesión'}
-          </button>
-        </form>
-      </div>
-    )
-  }
-
   if (loading || dataError) {
     return (
       <div className="kitchen-screen">
         <div className="kitchen-empty">
           <div className="kitchen-empty-emoji">{dataError ? '⚠️' : '⏳'}</div>
           <div>{dataError || 'Cargando órdenes…'}</div>
-          {dataError && <button className="kitchen-login-button" onClick={handleSignOut}>Cerrar sesión</button>}
         </div>
       </div>
     )
@@ -258,7 +155,6 @@ export default function KitchenScreen() {
         <div className="kitchen-status">
           <Clock />
           <span className="kitchen-badge">{awaiting.length} por confirmar · {preparing.length} en cocina</span>
-          <button className="kitchen-signout" onClick={handleSignOut}>Salir</button>
         </div>
       </div>
 
