@@ -10,9 +10,12 @@ const RINGERS_PATH = 'ringers'
 const COUNTERS_PATH = 'orderCounters'
 
 function isPermissionDenied(error) {
-  return error?.code === 'PERMISSION_DENIED'
-    || error?.code === 'database/permission-denied'
-    || error?.message?.includes('Permission denied')
+  const code = String(error?.code || '').toLowerCase()
+  const message = String(error?.message || '').toLowerCase()
+  return code.includes('permission_denied')
+    || code.includes('permission-denied')
+    || message.includes('permission_denied')
+    || message.includes('permission denied')
 }
 
 function localDayKey(date) {
