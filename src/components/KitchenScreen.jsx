@@ -43,17 +43,30 @@ export default function KitchenScreen() {
   useEffect(() => {
     setLoading(true)
     setDataError('')
+    const loadTimeout = setTimeout(() => {
+      setDataError('Firebase no respondió. Verifica tu conexión y las reglas de Realtime Database.')
+      setLoading(false)
+    }, 10000)
     const handleDataError = error => {
+      clearTimeout(loadTimeout)
       console.error('Kitchen data subscription failed:', error)
       setDataError('No se pudieron cargar los datos. Verifica las reglas de acceso de Firebase.')
       setLoading(false)
     }
     const unsubs = [
-      subscribeOrders(incoming => { setOrders(incoming); setLoading(false) }, handleDataError),
+      subscribeOrders(incoming => {
+        clearTimeout(loadTimeout)
+        setOrders(incoming)
+        setDataError('')
+        setLoading(false)
+      }, handleDataError),
       subscribeHistory(setHistory, handleDataError),
       subscribeRingers(setInUse, handleDataError),
     ]
-    return () => unsubs.forEach(unsubscribe => unsubscribe())
+    return () => {
+      clearTimeout(loadTimeout)
+      unsubs.forEach(unsubscribe => unsubscribe())
+    }
   }, [])
 
   async function handleDone(order) {
