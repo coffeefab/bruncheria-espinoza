@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react'
 import { calculateOrderTotals } from '../data/pricing'
-
-function orderNumber(order) {
-  return order.orderNumber ?? order.number
-}
+import { formatOrderNumber } from '../data/orderNumber'
 
 function orderTime(order) {
   return new Date(order.createdAt || order.timestamp).toLocaleTimeString('en-US', {
@@ -92,7 +89,7 @@ export default function ReviewOrderCard({ order, onSave, onCancel, onConfirm }) 
     <article className="staff-order-card">
       <header className="staff-order-header">
         <div>
-          <div className="staff-order-number">Order #{orderNumber(order)}</div>
+          <div className="staff-order-number">Order #{formatOrderNumber(order)}</div>
           <div className="staff-order-time">Submitted {orderTime(order)}</div>
         </div>
         <span className="staff-order-status">Awaiting confirmation</span>

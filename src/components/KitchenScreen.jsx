@@ -4,6 +4,7 @@ import {
   restoreFromHistory, subscribeHistory, subscribeOrders, subscribeRingers,
   updatePendingOrder,
 } from '../data/orders'
+import { formatOrderNumber } from '../data/orderNumber'
 import ReviewOrderCard from './ReviewOrderCard'
 
 const UNDO_MS = 8000
@@ -19,10 +20,6 @@ function Clock() {
       {time.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
     </span>
   )
-}
-
-function orderNumber(order) {
-  return order.orderNumber ?? order.number
 }
 
 function buzzerNumber(order) {
@@ -185,7 +182,7 @@ export default function KitchenScreen() {
 
       {undoItem && (
         <div className="kitchen-undo-bar">
-          <span>Pedido #{orderNumber(undoItem)} marcado listo</span>
+          <span>Pedido #{formatOrderNumber(undoItem)} marcado listo</span>
           <button className="kitchen-undo-btn" onClick={handleUndo}>↩ Deshacer</button>
         </div>
       )}
@@ -325,7 +322,7 @@ function KitchenOrder({ order, onDone, onCancel }) {
 function KitchenIdentifiers({ order }) {
   return (
     <div className="kitchen-identifiers">
-      <div>Pedido #{orderNumber(order)}</div>
+      <div>Pedido #{formatOrderNumber(order)}</div>
       {buzzerNumber(order) != null && <span>Localizador #{buzzerNumber(order)}</span>}
     </div>
   )

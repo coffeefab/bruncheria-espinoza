@@ -1,3 +1,5 @@
+import { formatOrderNumber } from '../data/orderNumber'
+
 export default function ConfirmationScreen({ order, onDone }) {
   return (
     <div className="confirmation-screen">
@@ -5,7 +7,7 @@ export default function ConfirmationScreen({ order, onDone }) {
         <div className="confirmation-egg">🍳</div>
         <p className="confirmation-label">Got it! We've received your order.</p>
         <p className="confirmation-label-es">¡Listo! Recibimos tu orden.</p>
-        <div className="confirmation-order-number">Order #{order.orderNumber}</div>
+        <div className="confirmation-order-number">Order #{formatOrderNumber(order)}</div>
         <div className="confirmation-buzz">
           Head to the window to confirm and pay.
           <span>Show us your order number. We’ll confirm everything, take your payment, and give you a buzzer.</span>

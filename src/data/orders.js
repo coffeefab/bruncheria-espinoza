@@ -3,6 +3,7 @@ import {
   get, onValue, push, ref, runTransaction, set, update,
 } from 'firebase/database'
 import { calculateOrderTotals } from './pricing'
+import { shortOrderId } from './orderNumber'
 
 const ORDERS_PATH = 'orders'
 const HISTORY_PATH = 'history'
@@ -43,7 +44,7 @@ export async function pushOrder(order, attempt) {
       attempt.orderNumber = result.snapshot.val()
     } catch (error) {
       if (!isPermissionDenied(error)) throw error
-      attempt.orderNumber = attempt.firebaseKey
+      attempt.orderNumber = shortOrderId(attempt.firebaseKey)
     }
     attempt.createdAt = now.toISOString()
   }

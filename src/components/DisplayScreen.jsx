@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { subscribeOrders, subscribeHistory, markPickedUp } from '../data/orders'
+import { formatOrderNumber } from '../data/orderNumber'
 
 const READY_TTL_MS = 10 * 60 * 1000 // show ready orders for 10 min
 
@@ -42,10 +43,6 @@ export default function DisplayScreen() {
 
   function displayKey(order) {
     return order.historyKey || order.firebaseKey || order.id
-  }
-
-  function orderNumber(order) {
-    return order.orderNumber ?? order.number
   }
 
   function buzzerNumber(order) {
@@ -108,7 +105,7 @@ export default function DisplayScreen() {
             <div className="display-numbers">
               {preparing.map(order => (
                 <div key={displayKey(order)} className="display-number display-number--preparing">
-                  <div className="display-number-val">{orderNumber(order)}</div>
+                  <div className="display-number-val">{formatOrderNumber(order)}</div>
                   {buzzerNumber(order) != null && (
                     <div className="display-number-buzzer">Localizador #{buzzerNumber(order)}</div>
                   )}
@@ -150,7 +147,7 @@ export default function DisplayScreen() {
                   key={displayKey(order)}
                   className={`display-number display-number--ready${dismissing.has(displayKey(order)) ? ' display-number--dismissing' : ''}`}
                 >
-                  <div className="display-number-val">{orderNumber(order)}</div>
+                  <div className="display-number-val">{formatOrderNumber(order)}</div>
                   {buzzerNumber(order) != null && (
                     <div className="display-number-buzzer">Localizador #{buzzerNumber(order)}</div>
                   )}
