@@ -37,7 +37,7 @@ export default function WelcomeScreen({ onStart, menuLoading }) {
 
       {/* Testing only — remove before production */}
       <a
-        href="#kitchen"
+        href="?view=kitchen"
         style={{
           position: 'absolute',
           bottom: 16,

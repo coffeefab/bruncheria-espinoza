@@ -12,8 +12,13 @@ export const STORAGE_KEY = 'be_orders_v2'
 
 export default function App() {
   const [routeHash, setRouteHash] = useState(window.location.hash)
-  const isKitchen = window.location.pathname.endsWith('/kitchen') || routeHash === '#kitchen'
-  const isDisplay = window.location.pathname.endsWith('/display') || routeHash === '#display'
+  const routeQuery = new URLSearchParams(window.location.search).get('view')
+  const isKitchen = window.location.pathname.endsWith('/kitchen')
+    || routeHash === '#kitchen'
+    || routeQuery === 'kitchen'
+  const isDisplay = window.location.pathname.endsWith('/display')
+    || routeHash === '#display'
+    || routeQuery === 'display'
 
   // Menu data
   const [menuItems, setMenuItems] = useState([])
