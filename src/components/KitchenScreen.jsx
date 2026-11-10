@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import {
-  cancelOrder, confirmOrder, markOrderReady, markPickedUp, releaseOrderBuzzer,
+  cancelOrder, clearOrderHistory, confirmOrder, markOrderReady, markPickedUp, releaseOrderBuzzer,
   restoreFromHistory, subscribeHistory, subscribeOrders, subscribeRingers,
   updatePendingOrder,
 } from '../data/orders'
@@ -36,6 +36,8 @@ export default function KitchenScreen() {
   const [dataError, setDataError] = useState('')
   const [actionError, setActionError] = useState('')
   const [undoItem, setUndoItem] = useState(null)
+  const [confirmClearHistory, setConfirmClearHistory] = useState(false)
+  const [clearingHistory, setClearingHistory] = useState(false)
   const undoTimer = useRef(null)
 
   useEffect(() => {
@@ -130,6 +132,20 @@ export default function KitchenScreen() {
     } catch (error) {
       console.error('Could not release buzzer:', error)
       setActionError(error.message || 'No se pudo liberar el localizador.')
+    }
+  }
+
+  async function handleClearHistory() {
+    setClearingHistory(true)
+    setActionError('')
+    try {
+      await clearOrderHistory()
+      setConfirmClearHistory(false)
+    } catch (error) {
+      console.error('Could not clear order history:', error)
+      setActionError(error.message || 'No se pudo borrar el historial.')
+    } finally {
+      setClearingHistory(false)
     }
   }
 
@@ -244,6 +260,25 @@ export default function KitchenScreen() {
           </div>
         ) : (
           <div className="kitchen-scroll">
+            <div className="kitchen-history-toolbar">
+              {confirmClearHistory ? (
+                <div className="kitchen-history-confirm">
+                  <span>¿Borrar todo el historial? También se eliminarán las órdenes listas que aún no se han recogido.</span>
+                  <div>
+                    <button className="kitchen-history-delete" onClick={handleClearHistory} disabled={clearingHistory}>
+                      {clearingHistory ? 'Borrando…' : 'Sí, borrar todo'}
+                    </button>
+                    <button className="kitchen-history-cancel" onClick={() => setConfirmClearHistory(false)} disabled={clearingHistory}>
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button className="kitchen-history-clear" onClick={() => setConfirmClearHistory(true)}>
+                  🗑 Borrar historial
+                </button>
+              )}
+            </div>
             <div className="kitchen-grid">
               {archived.map(order => (
                 <KitchenHistoryOrder

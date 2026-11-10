@@ -9,6 +9,7 @@ const ORDERS_PATH = 'orders'
 const HISTORY_PATH = 'history'
 const RINGERS_PATH = 'ringers'
 const COUNTERS_PATH = 'orderCounters'
+const ARCHIVED_STATUSES = new Set(['ready', 'completed', 'cancelled'])
 
 function isPermissionDenied(error) {
   const code = String(error?.code || '').toLowerCase()
@@ -255,6 +256,45 @@ export async function releaseOrderBuzzer(order) {
     ? `${HISTORY_PATH}/${order.historyKey}`
     : `${ORDERS_PATH}/${order.firebaseKey}`
   await update(ref(db, path), { buzzerReleasedAt: new Date().toISOString() })
+}
+
+export async function clearOrderHistory() {
+  const [ordersSnapshot, historySnapshot] = await Promise.all([
+    get(ref(db, ORDERS_PATH)),
+    get(ref(db, HISTORY_PATH)),
+  ])
+  const updates = { [HISTORY_PATH]: null }
+  const ordersToRemove = []
+
+  ordersSnapshot.forEach(child => {
+    const order = child.val()
+    if (!ARCHIVED_STATUSES.has(order.status)) return
+    updates[`${ORDERS_PATH}/${child.key}`] = null
+    ordersToRemove.push({ ...order, firebaseKey: child.key })
+  })
+
+  for (const order of ordersToRemove) {
+    await releaseArchivedBuzzer(order, order.firebaseKey)
+  }
+  const historyOrders = []
+  historySnapshot.forEach(child => {
+    historyOrders.push(child.val())
+  })
+  for (const order of historyOrders) {
+    await releaseArchivedBuzzer(order, order.firebaseKey)
+  }
+
+  await update(ref(db), updates)
+}
+
+async function releaseArchivedBuzzer(order, orderKey) {
+  const buzzerNumber = order.buzzerNumber ?? (!order.orderNumber ? order.number : null)
+  if (!buzzerNumber) return
+  try {
+    await releaseRinger(buzzerNumber, orderKey)
+  } catch (error) {
+    if (error.message !== `Buzzer #${buzzerNumber} is assigned to another order.`) throw error
+  }
 }
 
 export async function claimRinger(number, orderKey) {

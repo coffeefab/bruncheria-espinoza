@@ -133,6 +133,7 @@ export default function App() {
           orderLocked={!!submissionAttempt.current}
           onConfirm={handleSubmitOrder}
           onBack={() => setScreen('menu')}
+          onRemoveItem={id => setCart(current => current.filter(item => item.id !== id))}
         />
       )}
 

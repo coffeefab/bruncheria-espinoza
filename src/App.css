@@ -591,7 +591,24 @@ ul { list-style: none; }
   color: var(--yellow);
 }
 
+.review-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 .review-item-price { font-size: 22px; font-weight: 800; flex-shrink: 0; }
+.review-item-remove {
+  background: transparent;
+  color: #b42318;
+  border: 1px solid rgba(180,35,24,0.25);
+  border-radius: var(--r-full);
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.review-item-remove:hover { background: rgba(180,35,24,0.08); }
+.review-item-remove:disabled { opacity: 0.4; }
 
 .review-total-bar {
   background: var(--yellow);
@@ -967,6 +984,45 @@ ul { list-style: none; }
 }
 .kitchen-restore-btn:hover  { background: rgba(253,204,20,0.1); border-color: var(--yellow); }
 .kitchen-restore-btn:active { transform: scale(0.97); }
+
+.kitchen-history-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 20px 0;
+}
+.kitchen-history-clear,
+.kitchen-history-delete,
+.kitchen-history-cancel {
+  border-radius: var(--r-full);
+  padding: 10px 18px;
+  font-size: 15px;
+  font-weight: 800;
+}
+.kitchen-history-clear,
+.kitchen-history-delete {
+  background: #FF6B6B;
+  color: var(--black);
+}
+.kitchen-history-cancel {
+  background: transparent;
+  color: rgba(255,255,255,0.75);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.kitchen-history-confirm {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  color: #ffd3d3;
+  background: rgba(255,107,107,0.12);
+  border: 1px solid rgba(255,107,107,0.3);
+  border-radius: var(--r-md);
+}
+.kitchen-history-confirm > div { display: flex; gap: 8px; }
+.kitchen-history-delete:disabled,
+.kitchen-history-cancel:disabled { opacity: 0.5; }
 
 /* Tabs */
 .kitchen-tabs {
@@ -1624,5 +1680,12 @@ ul { list-style: none; }
   }
   .staff-order-header {
     flex-direction: column;
+  }
+  .kitchen-history-confirm {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .kitchen-history-confirm > div {
+    flex-wrap: wrap;
   }
 }

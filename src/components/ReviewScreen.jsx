@@ -2,11 +2,11 @@ import { Logo } from './WelcomeScreen'
 import { calculateOrderTotals } from '../data/pricing'
 
 function itemTotal(item, mods) {
-  return item.price + mods.reduce((sum, modifier) => sum + (modifier.price || 0), 0)
+  return item.price + (mods || []).reduce((sum, modifier) => sum + (modifier.price || 0), 0)
 }
 
 export default function ReviewScreen({
-  cart, submitting, submitError, orderLocked, onConfirm, onBack,
+  cart, submitting, submitError, orderLocked, onConfirm, onBack, onRemoveItem,
 }) {
   const { subtotal, tax, total } = calculateOrderTotals(cart)
 
@@ -34,7 +34,7 @@ export default function ReviewScreen({
                   <div className="review-item-name">
                     {ci.item.emoji && `${ci.item.emoji} `}{ci.item.name_en}
                   </div>
-                  {ci.modifiers.length > 0 && (
+                  {ci.modifiers?.length > 0 && (
                     <div className="review-mods">
                       {ci.modifiers.map(m => (
                         <span key={m.id} className="review-mod-tag">
@@ -44,7 +44,18 @@ export default function ReviewScreen({
                     </div>
                   )}
                 </div>
-                <div className="review-item-price">${lineTotal.toFixed(2)}</div>
+                <div className="review-item-actions">
+                  <div className="review-item-price">${lineTotal.toFixed(2)}</div>
+                  <button
+                    className="review-item-remove"
+                    type="button"
+                    aria-label={`Remove ${ci.item.name_en} from order`}
+                    onClick={() => onRemoveItem(ci.id)}
+                    disabled={orderLocked || submitting}
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
             )
           })}
