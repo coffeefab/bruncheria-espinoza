@@ -30,9 +30,6 @@ class AppErrorBoundary extends React.Component {
         }}>
           <h1>The kitchen screen couldn’t load.</h1>
           <p>Please refresh this page or return to the ordering screen.</p>
-          <pre style={{ maxWidth: 720, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
-            {this.state.error?.message || 'Unknown rendering error'}
-          </pre>
           <a href="/bruncheria-espinoza/" style={{ color: '#111', fontWeight: 700 }}>
             Return to ordering
           </a>

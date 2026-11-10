@@ -22,3 +22,11 @@ test('returns zero totals for an empty cart', () => {
     total: 0,
   })
 })
+
+test('calculates totals when a cart item has no modifiers field', () => {
+  assert.deepEqual(calculateOrderTotals([{ item: { price: 10 } }]), {
+    subtotal: 10,
+    tax: 0.7,
+    total: 10.7,
+  })
+})
