@@ -356,10 +356,10 @@ function KitchenOrder({ order, onDone, onCancel }) {
 }
 
 function KitchenIdentifiers({ order }) {
+  const buzzer = buzzerNumber(order)
   return (
     <div className="kitchen-identifiers">
-      <div>Pedido #{formatOrderNumber(order)}</div>
-      {buzzerNumber(order) != null && <span>Localizador #{buzzerNumber(order)}</span>}
+      <div>Pedido #{buzzer ?? formatOrderNumber(order)}</div>
     </div>
   )
 }
